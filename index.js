@@ -95,8 +95,6 @@ function analystQuote(symbol, pe, profitMargins, price) {
   let message;
   let style;
 
-  console.log("price: " +  price)
-
   if (profitMargins > 40) {
     message = "Matt observes that the profit margins are over 40% → BUY";
     style = chalk.green.bold;
