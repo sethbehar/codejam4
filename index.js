@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import YahooFinance from "yahoo-finance2";
+import chalk from "chalk";
 
 const yahooFinance = new YahooFinance({
-  suppressNotices: ['yahooSurvey']  // ← add this option
+  suppressNotices: ['yahooSurvey']
 });
 
 const DEFAULT_SYMBOLS = ['AAPL', 'MSFT', 'NVDA', 'AMZN'];
@@ -25,10 +26,21 @@ async function fetchPrices(symbolList, displayMode = 'individual') {
         shortName,
         symbol,
         regularMarketChange,
-        regularMarketChangePercent
+        regularMarketChangePercent,
+        pe,
+        priceToBook,
+        profitMargins,
+        fiftyTwoWeekLow,
       } = quote;
 
-      if (displayMode === 'individual') {
+      
+
+      if (displayMode === 'individual' || displayMode === 'analyst') {
+
+        if (displayMode === 'analyst') 
+          analystQuote(symbol, pe, profitMargins, price)
+        
+
         console.log(`\n📈 ${shortName || symbol}`);
         console.log(`Symbol: ${symbol}`);
         console.log(`Price: ${price} ${currency}`);
@@ -72,9 +84,38 @@ async function fetchPrices(symbolList, displayMode = 'individual') {
       console.log("");
     }
   } catch (error) {
-    console.error("❌ Error fetching data:", error.message);
+    console.error("");
     process.exit(1);
   }
+}
+
+function analystQuote(symbol, pe, profitMargins, price) {
+  console.log("\n" + chalk.blue.bold(`Seth & Matt’s Analyst Quote for ${symbol} (Buy, Sell, Hold)`));
+
+  let message;
+  let style;
+
+  console.log("price: " +  price)
+
+  if (profitMargins > 40) {
+    message = "Matt observes that the profit margins are over 40% → BUY";
+    style = chalk.green.bold;
+  }
+  else if (pe > 20) {
+    message = "Seth observes that the P/E is over 40 → BUY";
+    style = chalk.green.bold;
+  }
+  else if (price > 400) {
+    message = "Seth and Matt observe that the price is too high, let’s wait for a stock split → HOLD";
+    style = chalk.yellow.bold;
+  }
+  else {
+    message = "Seth and Matt don’t see anything special → SELL";
+    style = chalk.red.bold;
+  }
+
+  console.log(style(message));
+
 }
 
 // Function to clear console and move cursor to top
@@ -84,17 +125,22 @@ function clearConsole() {
   console.log("📊 Live Stock Tracker (Press Ctrl+C to exit)\n");
 }
 
-// Check if --table flag is used
+
+
+// ---------- MAIN FUNCTION ----------
+
 if (args.includes('--table')) {
-  // Initial fetch
   clearConsole();
   fetchPrices(DEFAULT_SYMBOLS, 'table');
-  
-  // Refresh every 10 seconds
+
   setInterval(async () => {
     clearConsole();
     await fetchPrices(DEFAULT_SYMBOLS, 'table');
-  }, 10000); // 10000ms = 10 seconds
-} else {
+  }, 10000); 
+}
+else if (args.includes('--analyst')) {
+    fetchPrices(args, 'analyst');
+}
+else {
   fetchPrices(args, 'individual');
 }
