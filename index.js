@@ -46,15 +46,13 @@ async function fetchPrices(symbolList, displayMode = "individual") {
         symbol,
         regularMarketChange,
         regularMarketChangePercent,
-        pe,
-        priceToBook,
-        profitMargins,
-        fiftyTwoWeekLow,
+        trailingPE: pe,
+        fiftyDayAverage,
       } = quote;
 
       if (displayMode === "individual" || displayMode === "analyst") {
         if (displayMode === "analyst") {
-          analystQuote(symbol, pe, profitMargins, price);
+          analystQuote(symbol, pe, fiftyDayAverage, price);
         }
 
         console.log(`\n📈 ${shortName || symbol}`);
@@ -100,7 +98,6 @@ async function fetchPrices(symbolList, displayMode = "individual") {
       }
     } catch (error) {
       console.error(`❌ Failed to fetch ${sym}:`, error?.message || error);
-      // continue to next symbol
     }
   }
 
@@ -122,7 +119,7 @@ async function fetchPrices(symbolList, displayMode = "individual") {
   }
 }
 
-function analystQuote(symbol, pe, profitMargins, price) {
+function analystQuote(symbol, pe, fiftyDayAverage, price) {
   console.log(
     "\n" + chalk.blue.bold(`Seth & Matt’s Analyst Quote for ${symbol} (Buy, Sell, Hold)`)
   );
@@ -130,19 +127,15 @@ function analystQuote(symbol, pe, profitMargins, price) {
   let message;
   let style;
 
-  console.log("price: " + price);
-
-  // Note: profitMargins from the API are usually fractions (e.g., 0.25 = 25%).
-  // Keeping your original thresholds/wording as-is.
-  if (profitMargins > 40) {
-    message = "Matt observes that the profit margins are over 40% → BUY";
+  if (fiftyDayAverage > price * 1.1) {
+    message = "Matt observes that the fifty-day average is too low → BUY";
     style = chalk.green.bold;
-  } else if (pe > 20) {
-    message = "Seth observes that the P/E is over 40 → BUY";
+  } else if (pe > 40) {
+    message = "Seth observes that the P/E is solid → BUY";
     style = chalk.green.bold;
   } else if (price > 400) {
     message =
-      "Seth and Matt observe that the price is too high, let’s wait for a stock split → HOLD";
+      "Seth and Matt observe that the price is too high, lets' wait → HOLD";
     style = chalk.yellow.bold;
   } else {
     message = "Seth and Matt don’t see anything special → SELL";
@@ -152,7 +145,6 @@ function analystQuote(symbol, pe, profitMargins, price) {
   console.log(style(message));
 }
 
-// Function to clear console and move cursor to top
 function clearConsole() {
   console.clear();
   console.log("📊 Live Stock Tracker (Press Ctrl+C to exit)\n");

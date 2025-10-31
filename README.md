@@ -1,18 +1,6 @@
-# Stock Price Tracker
+# MattGoods Stock Screener & Paper Trading
 
-A command-line application that displays real-time stock prices using the Yahoo Finance API.
-
-## Features
-
-- **Individual Stock Lookup**: Look up prices for any stock symbols
-- **Live Market Overview**: View a live-updating table of major tech stocks (AAPL, MSFT, NVDA, AMZN)
-- **Real-time Updates**: Auto-refreshes every 10 seconds in table mode
-- **Current Time Display**: Shows the latest update time for all quotes
-
-## Prerequisites
-
-- Node.js (v20.11.0 or higher)
-- npm (Node Package Manager)
+A CLI App that uses the YahooFinance Library to screen stocks and simulate paper trading
 
 ## Installation
 
@@ -28,6 +16,14 @@ A command-line application that displays real-time stock prices using the Yahoo 
    ```
 
 ## Usage
+
+### Paper Trader
+To simulate an account with $50,000, run
+
+```bash
+node game.js
+```
+This will boot up a paper trading account, allowing you to view stocks, buy, and sell, to grow your portfolio
 
 ### Individual Stock Lookup
 To look up one or more specific stocks:
@@ -48,6 +44,11 @@ This will show a continuously updating table with:
 - Amazon (AMZN)
 
 The table automatically refreshes every 10 seconds. Press `Ctrl+C` to exit.
+
+To view the live-updating table with stocks of your choice:
+```bash
+node index.js NVDA AAPL HPE QTUM IONQ --table
+```
 
 ## Output Examples
 
@@ -75,17 +76,3 @@ Market Overview - 10/30/2023, 2:30 PM
 └─────────┴────────────────┴──────────────┴────────────────────┘
 ```
 
-## Dependencies
-
-- [yahoo-finance2](https://www.npmjs.com/package/yahoo-finance2): For fetching real-time stock data
-
-## Error Handling
-
-The application includes error handling for:
-- Invalid stock symbols
-- Network connectivity issues
-- API response errors
-
-## License
-
-MIT License
